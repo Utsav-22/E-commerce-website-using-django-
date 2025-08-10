@@ -25,8 +25,11 @@ It includes features for browsing products, adding items to the cart, placing or
 ## ⚡ How to Run
 
 pip install -r requirements.txt
+
 python manage.py migrate
+
 python manage.py runserver
+
 
 
 
