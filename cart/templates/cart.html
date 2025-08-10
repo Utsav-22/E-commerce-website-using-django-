@@ -1,0 +1,157 @@
+{% include "header.html" %}
+{% load static %}
+<style>
+    .disabled {
+        background-color: gray !important;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+    
+</style>
+<section class="category" style="margin-top: 70px;">
+    <div class="cart-container">
+        <div class="cart-header">
+            <h1>Shopping Cart ({{ cart_items|length }} items)</h1>
+        </div>
+
+        <div class="cart-layout">
+            <div class="cart-items">
+                {% for item in cart_items %}
+                <div class="cart-item" id="cart-item-{{ item.id }}">
+                    <!-- Check if a main image exists for the product -->
+                    {% if item.main_image %}
+                    <img src="{{ item.main_image.image.url }}" alt="{{ item.product.name }}" class="cart-item-image">
+                    {% endif %}
+                    <div class="cart-item-details">
+                        <div class="cart-item-title">{{ item.product.name }}</div>
+                        <div class="cart-item-price" id="item-price-{{ item.id }}">{{ item.get_total_price }}</div>
+                        <div class="cart-quantity-controls">
+                            <form method="POST" action="{% url 'cart:update_cart' item.id %}" id="cart-form-{{ item.id }}">
+                                {% csrf_token %}
+                                <button type="submit" name="quantity_change" value="decrease" class="cart-quantity-btn" id="decrease-btn-{{ item.id }}">-</button>
+                                <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.product.quantity_available }}" class="cart-quantity-input" id="quantity-{{ item.id }}" data-price="{{ item.product.price }}" data-available="{{ item.product.quantity_available }}">
+                                <button type="submit" name="quantity_change" value="increase" class="cart-quantity-btn" id="increase-btn-{{ item.id }}">+</button>
+                            </form>
+                        </div>
+                    </div>
+                    <form method="POST" action="{% url 'cart:remove_from_cart' item.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="cart-remove-btn">✕</button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="cart-summary">
+                <div class="cart-summary-title">Order Summary</div>
+                <div class="cart-summary-row">
+                    <span>Subtotal</span>
+                    <span id="subtotal">${{ subtotal }}</span>
+                </div>
+                <div class="cart-summary-row">
+                    <span>Shipping</span>
+                    <span id="shipping-charge">${{ shipping_charge }}</span>
+                </div>
+                
+                <div class="cart-summary-row total">
+                    <span>Total</span>
+                    <span id="total">${{ total }}</span>
+                </div>
+                <form method="POST" action="{% url 'cart:checkout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="cart-checkout-btn" 
+                        {% if is_cart_empty %}disabled{% endif %}>
+                        Proceed to Checkout
+                    </button>
+                </form>
+                
+                {% if is_cart_empty %}
+                    <p style="color: red; margin-top: 10px;">Your cart is empty. Add items before proceeding to checkout.</p>
+                {% endif %}
+                
+                
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const quantityInputs = document.querySelectorAll('.cart-quantity-input');
+    
+        quantityInputs.forEach(input => {
+            const maxQuantity = parseInt(input.getAttribute('data-available'));
+            const productPrice = parseFloat(input.getAttribute('data-price'));
+            const itemId = input.id.split('-')[1];
+            const decreaseBtn = document.getElementById('decrease-btn-' + itemId);
+            const increaseBtn = document.getElementById('increase-btn-' + itemId);
+    
+            // Disable the buttons if out of stock
+            if (maxQuantity === 0) {
+                input.disabled = true;
+                decreaseBtn.disabled = true;
+                increaseBtn.disabled = true;
+            }
+    
+            input.addEventListener('input', function() {
+                let currentValue = parseInt(input.value);
+    
+                // Ensure quantity is within limits
+                if (currentValue > maxQuantity) {
+                    input.value = maxQuantity;
+                } else if (currentValue < 1) {
+                    input.value = 1;
+                }
+    
+                updateCart(itemId, currentValue);
+            });
+    
+            // Handle increase/decrease button clicks
+            decreaseBtn.addEventListener('click', function(event) {
+                event.preventDefault();
+                let currentValue = parseInt(input.value);
+                if (currentValue > 1) {
+                    input.value = currentValue - 1;
+                    updateCart(itemId, currentValue - 1, 'decrease');
+                }
+            });
+    
+            increaseBtn.addEventListener('click', function(event) {
+                event.preventDefault();
+                let currentValue = parseInt(input.value);
+                if (currentValue < maxQuantity) {
+                    input.value = currentValue + 1;
+                    updateCart(itemId, currentValue + 1, 'increase');
+                }
+            });
+    
+            // Function to update cart asynchronously
+            function updateCart(itemId, quantity, quantityChange = null) {
+                const formData = new FormData();
+                formData.append('quantity', quantity);
+                formData.append('quantity_change', quantityChange || (quantity > input.value ? 'increase' : 'decrease'));
+                formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+    
+                fetch(`/cart/update/${itemId}/`, {  
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update item price
+                        document.getElementById('item-price-' + itemId).innerText = '$' + data.item_total_price;
+    
+                        // Update cart summary
+                        document.getElementById('subtotal').innerText = data.cart_summary.subtotal;
+                        document.getElementById('total').innerText = data.cart_summary.total;
+                    }
+                })
+                .catch(error => console.error('Error updating cart:', error));
+            }
+        });
+    });
+
+ 
+</script>
+{% include "footer.html" %}

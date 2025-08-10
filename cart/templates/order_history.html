@@ -1,0 +1,95 @@
+{% include "header.html" %}
+{% load static %}
+
+<section class="oh-body" style="margin: 55px;">
+<div class="oh-container">
+        <h1 class="oh-h1">Order History</h1>
+{% for order in orders %}
+    <div class="oh-order-card">
+        <div class="oh-order-header">
+            <span class="oh-order-date">{{ order.date|date:"F d, Y" }}</span>
+            {% if order.status == "Pending" %}
+            <span class="oh-order-status oh-status-processing">{{ order.status }}</span>
+            {% elif order.status == "Shipped" %}
+            <span class="oh-order-status oh-status-shipped">{{ order.status }}</span>
+            {% elif order.status == "Delivered" %}
+            <span class="oh-order-status oh-status-delivered">{{ order.status }}</span>
+            {% elif order.status == "Canceled"%}
+            <span class="oh-order-status ">{{ order.status }}</span>
+            {% endif %}
+        </div>
+
+        <div class="oh-order-items">
+            {% for product in order.products %}
+            <div class="oh-item">
+                <!-- ✅ Display Product Image -->
+                <img src="{{ product.main_image.image.url }}" alt="{{ product.name }}" class="oh-item-image">
+                
+                <div class="oh-item-details">
+                    <div class="oh-item-name">{{ product.name }}</div>
+                    <div class="oh-item-quantity">Qty: {{ product.quantity }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="oh-order-footer">
+            <div class="oh-order-total">Total: ${{ order.total_price }}</div>
+
+            <!-- ✅ Show cancel button only for Pending orders -->
+            {% if order.status == "Pending" %}
+                <form method="POST" action="{% url 'cart:cancel_order' order.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="oh-cancel-btn">Cancel</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+{% endfor %}
+</section>
+<script>
+    function cancelOrder(orderId) {
+        if (confirm("Are you sure you want to cancel this order?")) {
+            fetch(`/cart/cancel_order/${orderId}/`, {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "Content-Type": "application/json"
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Order canceled successfully!");
+                    window.location.href = "{% url 'cart:order_history' %}";  // ✅ Reload page after canceling
+                } else {
+                    alert(data.error);
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    }
+    </script>
+    <script>
+        // Simple JavaScript to handle cancel button clicks
+        document.querySelectorAll('.oh-cancel-btn').forEach(button => {
+            if (!button.disabled) {
+                button.addEventListener('click', function() {
+                    const orderCard = this.closest('.oh-order-card');
+                    const orderId = orderCard.querySelector('.oh-order-id').textContent;
+                    
+                    if (confirm(`Are you sure you want to cancel ${orderId}?`)) {
+                        // Here you would typically make an API call to cancel the order
+                        alert(`${orderId} has been canceled.`);
+                        
+                        // For demo purposes, we'll just update the UI
+                        this.disabled = true;
+                        this.textContent = 'Canceled';
+                        orderCard.querySelector('.oh-order-status').textContent = 'Canceled';
+                        orderCard.querySelector('.oh-order-status').className = 'order-status';
+                        orderCard.querySelector('.oh-order-status').style.backgroundColor = '#7f8c8d';
+                    }
+                });
+            }
+        });
+    </script>
+    {% include "footer.html" %}

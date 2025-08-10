@@ -1,0 +1,85 @@
+{% include "header.html" %}
+{% load static %}
+
+<section class="body">
+    <div class="co-container">
+        <h2 class="co-h2">Checkout</h2>
+        
+        <div class="co-checkout-container">
+            <!-- Left Side - Order Summary -->
+            <div class="co-order-summary">
+                <h3 class="co-h3">Order Summary</h3>
+                
+                <!-- Product 1 -->
+				{% for item in cart_items %}
+                <div class="co-product-item">
+					{% if item.main_image %}
+                    <div class="co-product-image">
+						<img src="{{ item.main_image.image.url }}" alt="{{ item.product.name }}" >
+					</div>
+					{% endif %}
+                    <div class="co-product-details">
+                        <h4>{{ item.product.name }}</h4>
+                        <div>Quantity: {{ item.quantity }}</div>
+                    </div>
+                    <div class="co-product-price">${{ item.product.price }}</div>
+                </div>
+                {% endfor %}
+
+                <!-- Total Section -->
+                <div class="co-total-section">
+                    <div class="co-price-row">
+                        <div>Subtotal:</div>
+                        <div>${{ subtotal }}</div>
+                    </div>
+                    <div class="co-price-row">
+                        <div>Shipping:</div>
+                        <div>${{ shipping_charge }}</div>
+                    </div>
+                    <div class="co-price-row total-price">
+                        <div>Total:</div>
+                        <div>${{ total }}</div>
+                    </div>
+                </div>
+                
+                
+            </div>
+            
+            <!-- Right Side - Shipping Address and Payment -->
+            <div class="co-shipping-payment">
+                <h3>Shipping Address</h3>
+                
+                
+                <div class="co-address-selection">
+                    <form method="POST" action="{% url  'cart:place_order'%}">
+                    {% csrf_token %}
+                    {% if addresses %}
+                        {% for address in addresses %}
+							<div class="co-address-item">
+                             <input type="radio" name="address_id" value="{{ address.id }}" required > 
+                                  {{ address.first_name }} {{ address.last_name }},{{ address.address }} ,{{address.city}}
+								{{address.district}},{{address.state}},{{address.zipcode}}
+                                </div>
+						{% endfor %}
+                    {% endif %}
+                    <a  class="co-add-address-btn" href="{% url 'store:profile' %}">+ Add New Address</a>
+                </div>
+                
+                <!-- Payment Options -->
+                <div class="co-payment-options">
+                    <h3>Payment Method</h3>
+                    
+                    <div class="co-payment-method">
+                        <input   type="radio" name="payment" value="COD" checked >
+                        <label class="co-label">Cash on Delivery (COD)</label>
+                    </div>
+                </div>
+                
+                <!-- Place Order Button -->
+                <button class="co-btn-primary">Place Order</button>
+				</form>
+            </div>
+        </div>
+    </div>
+</section>
+{% include "footer.html" %}
