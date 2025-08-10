@@ -1,0 +1,136 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+
+    <title>petshop</title>
+    <!-- Load your CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="header-left">
+                <button class="sidebar-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="logo">
+                    <img src="{% static 'images/logo.png' %}" alt="Logo">
+                </div>
+            </div>
+
+            <nav class="navigation">
+                <div class="search-bar">
+                    <form id="search-form" action="{% url 'store:search_results' %}" method="GET">
+                        <input 
+                            type="text" 
+                            id="search-input" 
+                            name="q"  
+                            placeholder="Search for products, categories, or subcategories..." 
+                            oninput="searchProducts()" 
+                            value="{{ query|default:'' }}"
+                        >
+                        <button type="submit"><i class="fas fa-search"></i></button>
+                    </form>
+                </div>
+                <div id="search-results" class="search-results"></div>
+                
+
+                <div class="dropdown">
+                    <button class="dropdown-btn">
+                        Categories
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="dropdown-content">
+                        {% for category in categories %}
+                              <a href="{% url 'store:category_detail' category.id %}" class="dropdown-item">{{ category.name }}</a>
+                         {% endfor %}
+                    </div>
+                </div>
+                
+
+                {% if user.is_authenticated %}
+                <button class="cart-btn" onclick="location.href='{% url 'cart:view_cart' %}'">                        <i class="fas fa-shopping-cart">
+                    <span class="cart-count" id="cart-count">{{ cart_item_count }}</span> <!-- Default count, will be updated with AJAX -->                        </i>
+                    </button>
+                {% else %}
+                    <!-- Hide these buttons for screen sizes below 768px -->
+                    <div class="auth-buttons desktop-auth-buttons">
+                        <button class="login-btn" onclick="location.href='{% url 'userlogin:login' %}'">Login</button>
+                        <button class="register-btn" onclick="location.href='{% url 'userlogin:register' %}'">Register</button>
+                    </div>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>Menu</h3>
+            <button class="sidebar-close"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="sidebar-menu">
+            <ul>
+                <!-- Always Visible (Public Pages) -->
+                <li><a href="{%url 'store:index'%}">Home</a></li>
+                <li><a href="{%url 'store:about_us'%}">About Us</a></li>
+                
+                <li><a href="{%url 'store:Privacy-policy'%}">Privacy Policy</a></li>
+            
+                {% if user.is_authenticated %}
+                    <!-- Visible Only to Logged-in Users -->
+                    <li><a href="{%url 'store:profile'%}">Add Address</a></li>
+                    <li><a href="{%url 'store:address'%}">Address</a></li>
+                    <li><a href="{%url 'store:change_password'%}">Change Password</a></li>
+                    <li><a href="{%url 'cart:order_history'%}">Order History</a></li>
+                {% endif %}
+            </ul>
+            
+
+
+            {% if user.is_authenticated %}
+                <!-- Show Logout Button if the user is logged in -->
+                <div class="auth-logout">
+                    <p style="margin: 17px;
+    margin-left: -20px;
+}">{{ user.email }}</p>
+                    <button class="logout-btn" onclick="location.href='{% url 'userlogin:logout' %}'">Logout</button>
+                </div>
+            {% else %}
+                <!-- Show Login and Register Buttons if the user is not logged in -->
+                <div class="auth-buttons1">
+                    <button class="login-btn" onclick="location.href='{% url 'userlogin:login' %}'">Login</button>
+                    <button class="register-btn" onclick="location.href='{% url 'userlogin:register' %}'">Register</button>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        // This function will make an AJAX request to get the cart item count
+        function updateCartCount() {
+            $.ajax({
+                url: '{% url "store:get_cart_item_count" %}',  // Ensure this URL matches your URL config
+                type: 'GET',
+                success: function(response) {
+                    // Update the cart item count in the HTML element
+                    $('#cart-count').text(response.cart_item_count);
+                },
+                error: function() {
+                    console.log("Error fetching cart item count.");
+                }
+            });
+        }
+    
+        // Call this function when the page is loaded to get the cart item count
+        $(document).ready(function() {
+            updateCartCount();
+        });
+    </script>
+    

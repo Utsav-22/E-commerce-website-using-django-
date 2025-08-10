@@ -1,0 +1,478 @@
+{% load static %}
+<footer class="footer-container">
+  <div class="footer-content">
+      <!-- Logo and About Section -->
+      <div class="footer-logo-section">
+          <div class="logo-container">
+              <img src="{% static 'images/logo.png' %}" alt="Pet Shop Logo">
+          </div>
+          <p style="font-size: 14px; line-height: 1.6; margin-top: 15px;">Your trusted partner in pet care. Providing quality products 
+            and services for your beloved pets since 2020.</p>
+      </div>
+
+      <!-- Quick Links with Dropdown -->
+      <div class="footer-links">
+          <h3>Quick Links</h3>
+          <button class="footer-dropdown-header">Quick Links</button>
+          <div class="footer-dropdown-content">
+              <ul>
+                  <li><a href="{%url 'store:Privacy-policy'%}">Privacy Policy</a></li>
+                  <li><a href="{%url 'store:about_us'%}">About Us</a></li>
+                  
+              </ul>
+          </div>
+      </div>
+
+      <!-- Categories with Dropdown -->
+      <div class="footer-categories">
+          <h3>Categories</h3>
+          <button class="footer-dropdown-header">Categories</button>
+          <div class="footer-dropdown-content">
+              <ul>
+                {% for category in categories %}
+                  <li><a href="{% url 'store:category_detail' category.id %}">{{ category.name }}</a></li>
+                {% endfor %}
+              </ul>
+          </div>
+      </div>
+
+      <!-- Contact Info -->
+      <div class="footer-contact">
+          <h3>Contact Us</h3>
+          <ul>
+              <li><span>📍</span> 123 Pet Street, Animal City</li>
+              <li><span>📞</span> (555) 123-4567</li>
+              <li><span>✉️</span> info@mitra.com</li>
+          </ul>
+          <div class="social-icons">
+              <a href="#"><span>📱</span></a>
+              <a href="#"><span>👥</span></a>
+              <a href="#"><span>📸</span></a>
+          </div>
+      </div>
+  </div>
+
+  <!-- Copyright Bar -->
+  <div class="footer-bottom">
+      <p>&copy; 2025 MITRA. All rights reserved.</p>
+  </div>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+
+// footer
+
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initial animation
+    const footerSections = document.querySelectorAll('.footer-logo-section, .footer-links, .footer-categories, .footer-contact');
+    footerSections.forEach((section, index) => {
+        section.style.animation = `fadeIn 0.5s ease forwards ${index * 0.1}s`;
+        section.style.opacity = '0';
+    });
+
+    // Dropdown functionality
+    const dropdownHeaders = document.querySelectorAll('.footer-dropdown-header');
+    dropdownHeaders.forEach(header => {
+        header.addEventListener('click', function() {
+            this.classList.toggle('active');
+            const content = this.nextElementSibling;
+            content.classList.toggle('active');
+
+            // Close other dropdowns
+            dropdownHeaders.forEach(otherHeader => {
+                if (otherHeader !== header) {
+                    otherHeader.classList.remove('active');
+                    otherHeader.nextElementSibling.classList.remove('active');
+                }
+            });
+        });
+    });
+});
+
+
+
+
+
+
+
+  // sidbar
+
+  document.querySelector('.sidebar-toggle').addEventListener('click', () => {
+    document.querySelector('.sidebar').classList.toggle('active');
+});
+document.querySelector('.sidebar-close').addEventListener('click', () => {
+    document.querySelector('.sidebar').classList.remove('active');
+});
+// Select relevant elements
+const dropdown = document.querySelector('.dropdown');
+const dropdownContent = dropdown.querySelector('.dropdown-content');
+const dropdownItems = dropdown.querySelectorAll('.dropdown-item');
+let timeout;
+
+// Show dropdown on hover
+dropdown.addEventListener('mouseenter', () => {
+    clearTimeout(timeout); // Cancel hiding if hovering back
+    dropdownContent.style.display = 'block';
+});
+
+// Hide dropdown on mouse leave with a slight delay
+dropdown.addEventListener('mouseleave', () => {
+    timeout = setTimeout(() => {
+        dropdownContent.style.display = 'none';
+    }, 200); // Delay hiding by 200ms
+});
+
+// Highlight selected option
+dropdownItems.forEach((item) => {
+    item.addEventListener('click', (event) => {
+        // Ensure the link works and highlights the clicked item
+        dropdownItems.forEach((el) => el.classList.remove('selected'));
+        item.classList.add('selected');
+    });
+});
+
+
+    //slider
+	const slides = document.querySelectorAll('.slide');
+    const sliderNav = document.querySelector('.slider-nav');
+    const prevBtn = document.querySelector('.prev');
+    const nextBtn = document.querySelector('.next');
+    let currentSlide = 0;
+    let slideInterval;
+    const slideDelay = 3000;
+
+    // Create navigation dots
+    slides.forEach((_, index) => {
+      const dot = document.createElement('button');
+      dot.classList.add('nav-dot');
+      if (index === 0) dot.classList.add('active');
+      dot.addEventListener('click', () => goToSlide(index));
+      sliderNav.appendChild(dot);
+    });
+
+    function goToSlide(index) {
+      // Remove active classes
+      slides[currentSlide].classList.remove('active');
+      sliderNav.children[currentSlide].classList.remove('active');
+      
+      // Update current slide
+      currentSlide = index;
+      
+      // Add active classes
+      slides[currentSlide].classList.add('active');
+      sliderNav.children[currentSlide].classList.add('active');
+      
+      // Reset progress bar
+      resetProgress();
+    }
+
+    function nextSlide() {
+      const next = (currentSlide + 1) % slides.length;
+      goToSlide(next);
+    }
+
+    function prevSlide() {
+      const prev = (currentSlide - 1 + slides.length) % slides.length;
+      goToSlide(prev);
+    }
+
+    function resetProgress() {
+      progress.style.width = '0%';
+      void progress.offsetWidth; // Trigger reflow
+      progress.style.width = '100%';
+    }
+
+    // Start automatic sliding
+    function startSlideShow() {
+      slideInterval = setInterval(nextSlide, slideDelay);
+      resetProgress();
+    }
+
+    // Event listeners
+    prevBtn.addEventListener('click', () => {
+      prevSlide();
+      clearInterval(slideInterval);
+      startSlideShow();
+    });
+
+    nextBtn.addEventListener('click', () => {
+      nextSlide();
+      clearInterval(slideInterval);
+      startSlideShow();
+    });
+
+    const sliderContainer = document.querySelector('.slider-container');
+    
+    sliderContainer.addEventListener('mouseenter', () => {
+      clearInterval(slideInterval);
+      progress.style.width = '0';
+    });
+
+    sliderContainer.addEventListener('mouseleave', startSlideShow);
+
+    // Touch events support
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    sliderContainer.addEventListener('touchstart', e => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, false);
+
+    sliderContainer.addEventListener('touchend', e => {
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipe();
+    }, false);
+
+    function handleSwipe() {
+      const swipeThreshold = 50;
+      const difference = touchStartX - touchEndX;
+      
+      if (Math.abs(difference) > swipeThreshold) {
+        if (difference > 0) {
+          nextSlide();
+        } else {
+          prevSlide();
+        }
+        clearInterval(slideInterval);
+        startSlideShow();
+      }
+    }
+
+    // Start the slideshow
+    startSlideShow();
+	
+	//categories
+	function scrollImages(direction) {
+            const container = document.querySelector('.image-grid');
+            const itemWidth = container.querySelector('.image-item').offsetWidth;
+            const gap = parseInt(window.getComputedStyle(container).gap);
+            const scrollAmount = itemWidth + gap;
+            
+            if (direction === 'left') {
+                container.scrollBy({
+                    left: -scrollAmount,
+                    behavior: 'smooth'
+                });
+            } else {
+                container.scrollBy({
+                    left: scrollAmount,
+                    behavior: 'smooth'
+                });
+            }
+
+            updateScrollButtons();
+        }
+
+        function updateScrollButtons() {
+            const container = document.querySelector('.image-grid');
+            const leftButton = document.querySelector('.scroll-left');
+            const rightButton = document.querySelector('.scroll-right');
+            
+            // Show/hide left arrow
+            if (container.scrollLeft > 0) {
+                leftButton.style.opacity = '1';
+                leftButton.style.cursor = 'pointer';
+            } else {
+                leftButton.style.opacity = '0.5';
+                leftButton.style.cursor = 'default';
+            }
+            
+            // Show/hide right arrow
+            if (container.scrollLeft + container.offsetWidth >= container.scrollWidth - 1) {
+                rightButton.style.opacity = '0.5';
+                rightButton.style.cursor = 'default';
+            } else {
+                rightButton.style.opacity = '1';
+                rightButton.style.cursor = 'pointer';
+            }
+        }
+
+        // Initial update
+        updateScrollButtons();
+
+        // Update on scroll and resize
+        document.querySelector('.image-grid').addEventListener('scroll', updateScrollButtons);
+        window.addEventListener('resize', updateScrollButtons);
+
+        // Update scroll buttons after images load
+        window.addEventListener('load', updateScrollButtons);
+
+    // category_detail
+    document.addEventListener("DOMContentLoaded", () => {
+      // Sidebar Toggle
+      const sidebarToggle = document.querySelector('.sidebar-toggle');
+      const sidebarClose = document.querySelector('.sidebar-close');
+      if (sidebarToggle && sidebarClose) {
+        sidebarToggle.addEventListener('click', () => {
+          document.querySelector('.sidebar').classList.toggle('active');
+        });
+        sidebarClose.addEventListener('click', () => {
+          document.querySelector('.sidebar').classList.remove('active');
+        });
+      }
+    
+      // Dropdown
+      const dropdown = document.querySelector('.dropdown');
+      if (dropdown) {
+        const dropdownContent = dropdown.querySelector('.dropdown-content');
+        const dropdownItems = dropdown.querySelectorAll('.dropdown-item');
+        let timeout;
+        dropdown.addEventListener('mouseenter', () => {
+          clearTimeout(timeout);
+          dropdownContent.style.display = 'block';
+        });
+        dropdown.addEventListener('mouseleave', () => {
+          timeout = setTimeout(() => {
+            dropdownContent.style.display = 'none';
+          }, 200);
+        });
+        dropdownItems.forEach((item) => {
+          item.addEventListener('click', () => {
+            dropdownItems.forEach((el) => el.classList.remove('selected'));
+            item.classList.add('selected');
+          });
+        });
+      }
+    
+      // Slider
+      const slides = document.querySelectorAll('.slide');
+      const sliderNav = document.querySelector('.slider-nav');
+      const prevBtn = document.querySelector('.prev');
+      const nextBtn = document.querySelector('.next');
+      if (slides.length > 0 && sliderNav && prevBtn && nextBtn) {
+        // Slider initialization code here...
+      }
+    
+      // Image Grid Scroll
+      const imageGrid = document.querySelector('.image-grid');
+      if (imageGrid) {
+        function scrollImages(direction) {
+          const itemWidth = imageGrid.querySelector('.image-item').offsetWidth;
+          const gap = parseInt(window.getComputedStyle(imageGrid).gap);
+          const scrollAmount = itemWidth + gap;
+          if (direction === 'left') {
+            imageGrid.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+          } else {
+            imageGrid.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+          }
+          updateScrollButtons();
+        }
+    
+        function updateScrollButtons() {
+          const leftButton = document.querySelector('.scroll-left');
+          const rightButton = document.querySelector('.scroll-right');
+          if (imageGrid.scrollLeft > 0) {
+            leftButton.style.opacity = '1';
+            leftButton.style.cursor = 'pointer';
+          } else {
+            leftButton.style.opacity = '0.5';
+            leftButton.style.cursor = 'default';
+          }
+          if (imageGrid.scrollLeft + imageGrid.offsetWidth >= imageGrid.scrollWidth - 1) {
+            rightButton.style.opacity = '0.5';
+            rightButton.style.cursor = 'default';
+          } else {
+            rightButton.style.opacity = '1';
+            rightButton.style.cursor = 'pointer';
+          }
+        }
+    
+        updateScrollButtons();
+        imageGrid.addEventListener('scroll', updateScrollButtons);
+        window.addEventListener('resize', updateScrollButtons);
+        window.addEventListener('load', updateScrollButtons);
+      }
+    });
+
+    // categories_detail
+ 
+// serch system
+
+  function searchProducts() {
+    const query = document.getElementById('search-input').value;
+    const resultsContainer = document.getElementById('search-results');
+
+    if (!query.trim()) {
+        resultsContainer.style.display = 'none';
+        resultsContainer.innerHTML = '';
+        return;
+    }
+
+    fetch(`/ajax/search/?q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+            resultsContainer.innerHTML = '';
+            const { products, categories, subcategories } = data.results;
+
+            if (products.length || categories.length || subcategories.length) {
+                const ul = document.createElement('ul');
+
+                // Add categories
+                categories.forEach(category => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<a href="/category/${category.id}/">${category.name}</a>`;
+                    ul.appendChild(li);
+                });
+
+                // Add subcategories (with a link to the subcategory detail page)
+                subcategories.forEach(subcategory => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<a href="/category/${subcategory.category_id}/subcategory/${subcategory.id}/">${subcategory.name}(${subcategory.category__name})</a>`;
+                    ul.appendChild(li);
+                });
+
+                // Add products
+                products.forEach(product => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<a href="/product/${product.id}/">${product.name}</a>`;
+                    ul.appendChild(li);
+                });
+
+                resultsContainer.appendChild(ul);
+                resultsContainer.style.display = 'block'; // Show results
+            } else {
+                resultsContainer.innerHTML = '<p>No results found.</p>';
+                resultsContainer.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching search results:', error);
+        });
+}
+// product-details
+function changeMainImage(thumbnail) {
+  document.getElementById('mainImage').src = thumbnail.src;
+}
+
+
+// cart count 
+
+    
+        // This function will make an AJAX request to get the cart item count
+        function updateCartCount() {
+            $.ajax({
+                url: '{% url "store:get_cart_item_count" %}',  // Ensure this URL matches your URL config
+                type: 'GET',
+                success: function(response) {
+                    // Update the cart item count in the HTML element
+                    $('#cart-count').text(response.cart_item_count);
+                },
+                error: function() {
+                    console.log("Error fetching cart item count.");
+                }
+            });
+        }
+    
+        // Call this function when the page is loaded to get the cart item count
+        $(document).ready(function() {
+            updateCartCount();
+        });
+    
+
+
+ 
+  </script>
+</body>
+</html>

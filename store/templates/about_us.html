@@ -1,0 +1,152 @@
+{% include "header.html" %}
+{% load static %}
+
+<style>
+
+    .ab-body {
+        background-color: #f9f9f9;
+        color: #333;
+        margin-top: 30px;
+    }
+    .ab-container {
+        width: 100%;
+        max-width: 1200px;
+        margin: auto;
+        padding: 20px;
+    }
+    .ab-header {
+        text-align: center;
+        padding: 40px 0;
+        background-color: #ff9800;
+        color: white;
+    }
+    .ab-header h1 {
+        font-size: 2.25rem;
+    }
+    .ab-section {
+        margin: 40px 0;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .ab-section h2 {
+        margin-bottom: 15px;
+        color: #ff9800;
+        font-size: 1.5rem;
+    }
+    .ab-about-content {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        align-items: center;
+    }
+    .ab-about-content > div {
+        flex: 1;
+        min-width: 250px;
+    }
+    .ab-about-content img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+    }
+    .ab-team {
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-top: 20px;
+    }
+    .ab-team div {
+        text-align: center;
+        padding: 15px;
+        background: #ff9800;
+        color: white;
+        border-radius: 5px;
+        width: calc(33.333% - 15px);
+        max-width: 250px;
+        flex-grow: 1;
+    }
+    .ab-contact {
+        text-align: center;
+        padding: 20px;
+        background: #333;
+        color: white;
+        border-radius: 8px;
+    }
+    .ab-contact a {
+        color: #ff9800;
+        text-decoration: none;
+    }
+
+    /* Responsive Adjustments */
+    @media screen and (max-width: 768px) {
+        .ab-container {
+            padding: 10px;
+        }
+        .ab-about-content {
+            flex-direction: column;
+        }
+        .ab-team div {
+            width: calc(50% - 15px);
+        }
+        .ab-header h1 {
+            font-size: 1.8rem;
+        }
+        .ab-section h2 {
+            font-size: 1.3rem;
+        }
+    }
+
+    @media screen and (max-width: 480px) {
+        .ab-team div {
+            width: 100%;
+        }
+        .ab-header h1 {
+            font-size: 1.5rem;
+        }
+        .ab-section {
+            padding: 15px;
+        }
+    }
+</style>
+</head>
+<body>
+<section class="ab-body">
+    <div class="ab-container">
+        <div class="ab-section">
+            <h2>Our Story</h2>
+            <div class="ab-about-content">
+                <div>
+                    <p>Mitra Pet Shop was founded with a simple mission – to provide the best quality pet products and services for animal lovers. We believe that every pet deserves love, care, and the best nutrition possible.</p>
+                    <p>Started in 2022, we have grown into a trusted pet shop, offering a wide range of food, accessories, and pet essentials.</p>
+                </div>
+                <div>
+                    <img src="{% static 'images/logo.png' %}" alt="Mitra Pet Shop">
+                </div>
+            </div>
+        </div>
+        <div class="ab-section">
+            <h2>Our Mission</h2>
+            <p>We are committed to providing high-quality pet products, excellent customer service, and a wonderful shopping experience. Our goal is to make pet parenting easier, more affordable, and more enjoyable.</p>
+        </div>
+        <div class="ab-section">
+            <h2>Meet Our Team</h2>
+            <div class="ab-team">
+                <div>
+                    <h3>xyz</h3>
+                    <p>Founder & CEO</p>
+                </div>
+                <div>
+                    <h3>abc</h3>
+                    <p>Marketing Head</p>
+                </div>
+                <div>
+                    <h3>asd</h3>
+                    <p>Customer Support</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% include "footer.html" %}

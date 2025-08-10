@@ -1,0 +1,156 @@
+{% include "header.html" %}
+{% load static %}
+
+<section class="slider-wrapper">
+    <div class="slider-container">
+        {% for image in slider_images %}
+        <div class="slide {% if forloop.first %}active{% endif %}">
+            <img src="{{ image.image.url }}" alt="Slide {{ forloop.counter }}">
+        </div>
+        {% endfor %}
+    </div>
+    <div class="controls">
+        <button class="control-btn prev">&larr;</button>
+        <button class="control-btn next">&rarr;</button>
+    </div>
+    <div class="slider-nav"></div>
+</section>
+
+<section class="category">
+    <div class="category-header">
+        <div class="category-title">Category</div>
+        <div class="header-controls">
+            <button class="view-all-btn">View All</button>
+            <button class="scroll-button scroll-left" onclick="scrollImages('left')" aria-label="Scroll left">
+                <i class="arrow left"></i>
+            </button>
+            <button class="scroll-button scroll-right" onclick="scrollImages('right')" aria-label="Scroll right">
+                <i class="arrow right"></i>
+            </button>
+        </div>
+    </div>
+    <div class="image-container">
+        <div class="image-grid">
+            {% for category in categories %}
+            <div class="image-item">
+                <a href="{% url 'store:category_detail' category.id %}" style="text-decoration: none;">
+                    {% if category.image %}
+                    <img src="{{ category.image.url }}" alt="{{ category.name }}" class="round-image">
+                    {% else %}
+                    <img src="/static/default-image.jpg" alt="Default Image" class="round-image">
+                    {% endif %}
+                    <p class="image-name">{{ category.name }}</p>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="category" style="margin-top: 10px;">
+    <div class="category-header">
+        <div class="category-title">Best Selling</div>
+    </div>
+    <div class="products-grid" style="max-width:1200px; margin:22px auto; padding:0 10px;">
+        {% for product in products %}
+        <div class="product-card">
+            <div class="product-image">
+                {% if product.discount %}
+                <span class="discount-badge">{{ product.discount }}% OFF</span>
+                {% endif %}
+                <a href="{% url 'store:product_detail' product.id %}">
+                    <img src="{{ product.main_image.image.url }}" alt="{{ product.name }}">
+                </a>
+            </div>
+            <div class="product-info">
+                <h3 class="product-title">
+                    <a href="{% url 'store:product_detail' product.id %}">{{ product.name }}</a>
+                </h3>
+                <p class="quantity">Quantity Available: {{ product.quantity_available }}</p>
+                <p class="product-price">
+                    ${{ product.price }}
+                    {% if product.old_price %}
+                    <del>${{ product.old_price }}</del>
+                    {% endif %}
+                </p>
+                {% if product.quantity_available > 0 %}
+                <div class="quantity-control">
+                    <button type="button" class="quantity-btn" data-change="-1" data-product-id="{{ product.id }}">-</button>
+                    <input type="number" class="quantity-input" value="1" min="1" max="{{ product.quantity_available }}" data-product-id="{{ product.id }}">
+                    <button type="button" class="quantity-btn" data-change="1" data-product-id="{{ product.id }}">+</button>
+                </div>
+
+                <form method="POST" action="{% url 'cart:add_to_cart' product.id %}" class="cart-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="quantity" class="hidden-quantity" value="1" data-product-id="{{ product.id }}">
+                    
+                    {% if product.id in cart_product_ids %}
+                        <a href="{% url 'cart:view_cart' %}" class="go-to-cart">
+                            <i class="fas fa-shopping-cart"></i> Go to Cart
+                        </a>
+                    {% else %}
+                        <button class="add-to-cart" type="submit">
+                            <i class="fas fa-shopping-cart"></i> Add to Cart
+                        </button>
+                    {% endif %}
+                </form>
+                {% else %}
+                <p class="out-of-stock" style="color: red; font-weight: bold;">Out of Stock</p>
+                {% endif %}
+
+            </div>
+        </div>
+        {% empty %}
+        <p>No products available in this category.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.product-card').forEach(productCard => {
+        const quantityInput = productCard.querySelector('.quantity-input');
+        const hiddenQuantityInput = productCard.querySelector('.hidden-quantity');
+        const increaseBtn = productCard.querySelector('.quantity-btn[data-change="1"]');
+        const decreaseBtn = productCard.querySelector('.quantity-btn[data-change="-1"]');
+        const addToCartBtn = productCard.querySelector('.add-to-cart');
+
+        if (!quantityInput) return;
+
+        const maxQuantity = parseInt(quantityInput.getAttribute('max')) || 1;
+
+        function updateQuantity(newQuantity) {
+            if (newQuantity < 1) newQuantity = 1;
+            if (newQuantity > maxQuantity) newQuantity = maxQuantity;
+            
+            quantityInput.value = newQuantity;
+            hiddenQuantityInput.value = newQuantity;
+
+            decreaseBtn.disabled = newQuantity <= 1;
+            increaseBtn.disabled = newQuantity >= maxQuantity;
+        }
+
+        increaseBtn.addEventListener('click', function(event) {
+            event.preventDefault();
+            let currentQuantity = parseInt(quantityInput.value) || 1;
+            updateQuantity(currentQuantity + 1);
+        });
+
+        decreaseBtn.addEventListener('click', function(event) {
+            event.preventDefault();
+            let currentQuantity = parseInt(quantityInput.value) || 1;
+            updateQuantity(currentQuantity - 1);
+        });
+
+        quantityInput.addEventListener('input', function() {
+            let newQuantity = parseInt(quantityInput.value);
+            if (isNaN(newQuantity) || newQuantity < 1) newQuantity = 1;
+            updateQuantity(newQuantity);
+        });
+
+        updateQuantity(parseInt(quantityInput.value));
+    });
+});
+</script>
+
+{% include "footer.html" %}
